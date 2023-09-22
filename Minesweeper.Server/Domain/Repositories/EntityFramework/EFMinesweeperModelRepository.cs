@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Minesweeper.Server.Domain.Entities;
 using Minesweeper.Server.Domain.Repositories.Abstract;
-using Minesweeper.Server.Models;
 
 namespace Minesweeper.Server.Domain.Repositories.EntityFramework
 {

@@ -1,6 +1,4 @@
 ﻿using Minesweeper.Server.Domain.Entities;
-using Minesweeper.Server.Models;
-
 namespace Minesweeper.Server.Domain.Repositories.Abstract
 {
     public interface IMinesweeperModelRepository

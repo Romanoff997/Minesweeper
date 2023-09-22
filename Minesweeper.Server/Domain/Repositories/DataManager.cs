@@ -1,6 +1,6 @@
 ﻿using Minesweeper.Server.Domain.Repositories.Abstract;
 
-namespace CommitExplorerOAuth2AspNET.Domain.Repositories
+namespace Minesweeper.Server.Domain.Repositories
 {
     public class DataManager
     {

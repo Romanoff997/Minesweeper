@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using System.Net;
+﻿using System.Net;
 using Minesweeper.Server.Services;
 using Minesweeper.Server.Models;
 

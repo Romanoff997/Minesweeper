@@ -1,12 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Minesweeper.Server.Models;
 using Minesweeper.Server.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace Minesweeper.Server.Controllers
 {
     [ApiController]

@@ -1,7 +1,6 @@
-﻿using CommitExplorerOAuth2AspNET.Domain.Repositories;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.SignalR;
+﻿
 using Minesweeper.Server.Domain.Entities;
+using Minesweeper.Server.Domain.Repositories;
 using Minesweeper.Server.Models;
 
 namespace Minesweeper.Server.Services
@@ -29,7 +28,7 @@ namespace Minesweeper.Server.Services
             for (int i = 0; i < game.mines_count; i++)
             {
                 int index = rand.Next(0, fieldSize-1);
-                var curr = fieldList[index];
+                FieldEntity curr = fieldList[index];
                 if (curr.Boomb)
                 {
                     i--;
@@ -37,7 +36,7 @@ namespace Minesweeper.Server.Services
                 }
                 curr.Boomb = true;
             }
-            var newGame = new GameEntity()
+            GameEntity newGame = new GameEntity()
             {
                 Width = game.width,
                 Height = game.height,
@@ -50,22 +49,20 @@ namespace Minesweeper.Server.Services
 
         public async Task<GameInfoResponse> GetGame(Guid id)
         {
-            var game = await _manager.MinesweeperRepository.GetGame(id);
-            if (game == null)
-                throw new ApplicationException("Не найдена игра");
+            GameEntity game = await GetGameEntity(id);
 
             int height = game.Height;
             int width = game.Width;
-            var field = new string[height][];
+            string[][] fields = new string[height][];
 
-            var boombField = game.FieldEntity.Where(x => x.Opened == true && x.Boomb == true).FirstOrDefault();
+            FieldEntity boombField = game.FieldEntity.Where(x => x.Opened == true && x.Boomb == true).FirstOrDefault();
 
             for (int i = 0; i < height; i++)
             {
                 var row = new string[width];
                 for (int j = 0; j < width; j++)
                 {
-                    var currField = game.FieldEntity.ElementAt((i * width) + j);
+                    FieldEntity currField = game.FieldEntity.ElementAt((i * width) + j);
                     string symbol = voidSymbol;
                     if (game.Completed)
                     {
@@ -98,17 +95,17 @@ namespace Minesweeper.Server.Services
                     }
                     row[j] = symbol;
                 }
-                field[i] = row;
+                fields[i] = row;
             }
 
-            var gameInfo = new GameInfoResponse()
+            GameInfoResponse gameInfo = new GameInfoResponse()
             {
                 game_id = game.Id,
                 width = game.Width,
                 height = game.Height,
                 mines_count = game.Mines_count,
                 completed = game.Completed,
-                field = field
+                field = fields
             };
 
             return gameInfo;
@@ -130,23 +127,29 @@ namespace Minesweeper.Server.Services
             return neighbor;
         }
 
-        public async Task GameTurn(GameTurnRequest turn)
+        private async Task<GameEntity> GetGameEntity(Guid id)
         {
-            var game = await _manager.MinesweeperRepository.GetGame(turn.game_id);
+            GameEntity game = await _manager.MinesweeperRepository.GetGame(id);
             if (game == null)
                 throw new ApplicationException("Не найдена игра");
+            return game;
+        }
+        public async Task GameTurn(GameTurnRequest turn)
+        {
+            GameEntity game = await GetGameEntity(turn.game_id);
 
-            else if(game.Completed)
+            if (game.Completed)
                 throw new ApplicationException("Игра закончена");
 
             int index = (game.Width * turn.row) + turn.col;
-            var field = game?.FieldEntity?.ElementAtOrDefault(index);
+
+            FieldEntity field = game.FieldEntity?.ElementAtOrDefault(index);
 
             if (field == null)
                 throw new ApplicationException("Не найдено поле");
 
             field.Opened = true;
-            var lastField = game.FieldEntity.Where(x => x.Opened == false).Where(x => x.Boomb == false).FirstOrDefault();
+            FieldEntity lastField = game.FieldEntity.Where(x => x.Opened == false && x.Boomb == false).FirstOrDefault();
             if (field.Boomb || lastField == null)
             {
                 game.Completed = true;
